@@ -12,7 +12,6 @@
     --verde-light: #1D9E75;
     --amarelo: #F5C518;
     --amarelo-light: #FAD85A;
-    --branco: #F5F2EB;
     --cinza: #8A8A7A;
     --cinza-light: #E8E4DA;
     --danger: #E24B4A;
@@ -23,50 +22,28 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'DM Sans',sans-serif; background:var(--page-bg); color:var(--verde); min-height:100vh; }
 
-  header {
-    background:var(--verde); padding:0 2rem;
-    display:flex; align-items:center; justify-content:space-between;
-    height:64px; position:sticky; top:0; z-index:100;
-    border-bottom:3px solid var(--amarelo);
-  }
+  header { background:var(--verde); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:64px; position:sticky; top:0; z-index:100; border-bottom:3px solid var(--amarelo); }
   .logo { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--amarelo); letter-spacing:2px; }
   .logo span { color:#fff; }
   .header-tabs { display:flex; gap:4px; }
-  .tab-btn {
-    padding:6px 16px; border-radius:6px; border:none;
-    font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500;
-    cursor:pointer; background:transparent; color:#9FE1CB; transition:all 0.2s;
-  }
+  .tab-btn { padding:6px 16px; border-radius:6px; border:none; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; background:transparent; color:#9FE1CB; transition:all 0.2s; }
   .tab-btn.active { background:var(--amarelo); color:var(--verde); }
   .tab-btn:hover:not(.active) { background:rgba(255,255,255,0.1); color:#fff; }
 
   main { max-width:1100px; margin:0 auto; padding:2rem; }
 
-  /* API BANNER */
-  #api-banner {
-    background:var(--verde); border-radius:12px;
-    padding:1.25rem 1.5rem; margin-bottom:1.5rem;
-    display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
-  }
+  #api-banner { background:var(--verde); border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
   .banner-text { flex:1; min-width:200px; }
   .banner-text p { font-size:13px; color:#9FE1CB; margin-top:2px; }
   .banner-text strong { color:#fff; font-size:14px; }
   .api-inputs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .api-inputs input {
-    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
-    border-radius:8px; padding:8px 12px; color:#fff;
-    font-family:'DM Mono',monospace; font-size:12px; width:210px;
-  }
+  .api-inputs input { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:8px 12px; color:#fff; font-family:'DM Mono',monospace; font-size:12px; width:210px; }
   .api-inputs input::placeholder { color:rgba(255,255,255,0.35); }
   .api-inputs input:focus { outline:none; border-color:var(--amarelo); }
-  .btn-connect {
-    background:var(--amarelo); color:var(--verde); border:none;
-    border-radius:8px; padding:8px 18px; font-family:'DM Sans',sans-serif;
-    font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; white-space:nowrap;
-  }
+  .btn-connect { background:var(--amarelo); color:var(--verde); border:none; border-radius:8px; padding:8px 18px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
   .btn-connect:hover { background:var(--amarelo-light); }
   .btn-connect:disabled { opacity:0.5; cursor:not-allowed; }
-  .connection-status { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500; }
+  .connection-status { display:flex; align-items:center; gap:6px; font-size:13px; }
   .status-dot { width:8px; height:8px; border-radius:50%; background:var(--cinza); }
   .status-dot.connected { background:#4CAF50; box-shadow:0 0 6px #4CAF50; }
   .status-dot.error { background:var(--danger); }
@@ -75,14 +52,9 @@
 
   .view { display:none; }
   .view.active { display:block; }
-
-  .section-title {
-    font-family:'Bebas Neue',sans-serif; font-size:28px;
-    letter-spacing:2px; color:var(--verde); margin-bottom:1.25rem;
-  }
+  .section-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; color:var(--verde); margin-bottom:1.25rem; }
   .section-title span { color:var(--verde-light); }
 
-  /* CAMPANHAS */
   .campanhas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:1rem; margin-bottom:2rem; }
   .campanha-card { background:var(--card-bg); border-radius:14px; border:1px solid var(--border); overflow:hidden; transition:box-shadow 0.2s; }
   .campanha-card:hover { box-shadow:0 4px 20px rgba(13,59,30,0.1); }
@@ -104,12 +76,10 @@
   .btn-ranking:hover { background:var(--verde-light); color:#fff; }
   .btn-del { font-size:11px; color:var(--cinza); background:none; border:none; cursor:pointer; margin-left:6px; }
   .btn-del:hover { color:var(--danger); }
-
   .empty-state { text-align:center; padding:3rem; color:var(--cinza); }
   .empty-state .empty-icon { font-size:48px; margin-bottom:1rem; }
   .empty-state p { font-size:14px; margin-top:6px; }
 
-  /* INSIGHTS */
   .insights-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:2rem; }
   .insight-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); padding:1.25rem; }
   .insight-label { font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--cinza); margin-bottom:8px; }
@@ -120,13 +90,14 @@
   .insight-card.highlight .insight-value { color:var(--amarelo); }
   .insight-card.highlight .insight-sub { color:#9FE1CB; }
 
-  /* RANKING */
   .ranking-section { background:var(--card-bg); border-radius:14px; border:1px solid var(--border); overflow:hidden; margin-bottom:2rem; }
   .ranking-header { background:var(--verde); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
   .ranking-header h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#fff; letter-spacing:1.5px; }
   .ranking-filter { display:flex; gap:6px; }
   .filter-btn { font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#9FE1CB; cursor:pointer; transition:all 0.2s; }
   .filter-btn.active { background:var(--amarelo); color:var(--verde); border-color:var(--amarelo); }
+  .btn-refresh { font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#9FE1CB; cursor:pointer; }
+  .btn-refresh:hover { background:rgba(255,255,255,0.1); }
   table { width:100%; border-collapse:collapse; }
   th { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--cinza); padding:10px 1.5rem; text-align:left; border-bottom:1px solid var(--border); background:#FAFAF8; }
   td { padding:12px 1.5rem; font-size:13px; border-bottom:1px solid var(--cinza-light); color:var(--verde); }
@@ -144,20 +115,13 @@
   .rank-bar { background:var(--verde-light); height:6px; border-radius:4px; transition:width 0.8s ease; }
   tr:nth-child(1) .rank-bar { background:var(--amarelo); }
   .rank-valor { font-family:'DM Mono',monospace; font-size:12px; color:var(--cinza); text-align:right; }
-  .btn-refresh { font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#9FE1CB; cursor:pointer; transition:all 0.2s; }
-  .btn-refresh:hover { background:rgba(255,255,255,0.1); }
 
-  /* FORM */
   .form-card { background:var(--card-bg); border-radius:14px; border:1px solid var(--border); padding:1.75rem; margin-bottom:1.5rem; }
   .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
   .form-group { display:flex; flex-direction:column; gap:6px; }
   .form-group.full { grid-column:1/-1; }
   label { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--cinza); }
-  input[type="text"], input[type="date"], select, textarea {
-    border:1px solid var(--border); border-radius:8px; padding:10px 14px;
-    font-family:'DM Sans',sans-serif; font-size:14px; color:var(--verde);
-    background:#fff; transition:border-color 0.2s; width:100%;
-  }
+  input[type="text"], input[type="date"], select, textarea { border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--verde); background:#fff; transition:border-color 0.2s; width:100%; }
   input:focus, select:focus, textarea:focus { outline:none; border-color:var(--verde-light); }
   textarea { resize:vertical; min-height:80px; }
   .form-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:1.5rem; }
@@ -165,11 +129,9 @@
   .btn-primary:hover { background:var(--verde-mid); }
   .btn-secondary { background:transparent; color:var(--cinza); border:1px solid var(--border); border-radius:8px; padding:10px 20px; font-family:'DM Sans',sans-serif; font-weight:500; font-size:14px; cursor:pointer; }
 
-  /* TOAST */
   #toast { position:fixed; bottom:24px; right:24px; background:var(--verde); color:#fff; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:500; border-left:4px solid var(--amarelo); transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:1000; max-width:320px; }
   #toast.show { transform:translateY(0); opacity:1; }
 
-  /* MODAL */
   #modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,59,30,0.6); z-index:200; align-items:center; justify-content:center; }
   #modal-overlay.open { display:flex; }
   .modal { background:var(--card-bg); border-radius:16px; width:90%; max-width:560px; max-height:80vh; overflow-y:auto; }
@@ -201,8 +163,6 @@
 </header>
 
 <main>
-
-  <!-- API BANNER -->
   <div id="api-banner">
     <div style="font-size:24px">🔌</div>
     <div class="banner-text">
@@ -241,7 +201,6 @@
       <div class="section-title">INSIGHTS <span>RD STATION</span></div>
       <button class="btn-connect" style="font-size:12px;padding:6px 14px" onclick="refreshInsights()">↺ Atualizar</button>
     </div>
-
     <div class="insights-grid">
       <div class="insight-card highlight">
         <div class="insight-label">Leads este mês</div>
@@ -264,7 +223,6 @@
         <div class="insight-sub" id="ins-taxa-sub">Pedidos / oportunidades</div>
       </div>
     </div>
-
     <div class="ranking-section">
       <div class="ranking-header">
         <h3>RANKING DE VENDEDORES</h3>
@@ -279,19 +237,14 @@
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>Vendedor</th>
+            <th>#</th><th>Vendedor</th>
             <th style="text-align:right">Pedidos</th>
             <th class="rank-bar-cell"></th>
             <th style="text-align:right">Valor Total</th>
           </tr>
         </thead>
         <tbody id="ranking-body">
-          <tr>
-            <td colspan="5" style="text-align:center;color:var(--cinza);padding:2rem;font-size:13px">
-              Conecte o RD Station para ver o ranking em tempo real
-            </td>
-          </tr>
+          <tr><td colspan="5" style="text-align:center;color:var(--cinza);padding:2rem;font-size:13px">Conecte o RD Station para ver o ranking</td></tr>
         </tbody>
       </table>
     </div>
@@ -365,10 +318,8 @@
       </div>
     </div>
   </div>
-
 </main>
 
-<!-- MODAL -->
 <div id="modal-overlay" onclick="fecharModal(event)">
   <div class="modal">
     <div class="modal-header">
@@ -378,7 +329,6 @@
     <div class="modal-body" id="modal-body"></div>
   </div>
 </div>
-
 <div id="toast"></div>
 
 <script>
@@ -391,25 +341,56 @@ const state = {
   periodo: 'semana'
 };
 
-// Salvar/carregar campanhas
-function save() {
-  try { localStorage.setItem('hk_campanhas', JSON.stringify(state.campanhas)); } catch(e){}
-}
-function load() {
+// ── CAMPANHAS VIA SERVIDOR ──────────────────────────────────────
+async function load() {
   try {
-    const s = localStorage.getItem('hk_campanhas');
-    if (s) state.campanhas = JSON.parse(s);
-  } catch(e){}
+    const r = await fetch('/api/campanhas');
+    state.campanhas = await r.json();
+  } catch(e) { state.campanhas = []; }
   renderCampanhas();
 }
 
-// Views
+async function salvarCampanha() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  const setor  = document.getElementById('f-setor').value;
+  const inicio = document.getElementById('f-inicio').value;
+  const fim    = document.getElementById('f-fim').value;
+  const premio = document.getElementById('f-premio').value.trim();
+  if (!titulo || !setor || !inicio || !fim || !premio) { toast('Preencha título, setor, período e prêmio'); return; }
+
+  const campanha = {
+    titulo, setor, inicio, fim, premio,
+    criterio:    document.getElementById('f-criterio').value,
+    desempate:   document.getElementById('f-desempate').value,
+    regras:      document.getElementById('f-regras').value.trim(),
+    abrangencia: document.getElementById('f-abrangencia').value
+  };
+
+  await fetch('/api/campanhas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(campanha)
+  });
+
+  await load();
+  switchView('campanhas');
+  toast('🚀 Campanha publicada!');
+  ['f-titulo','f-premio','f-regras'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-setor').value = '';
+}
+
+async function deletarCampanha(id) {
+  await fetch('/api/campanhas/' + id, { method: 'DELETE' });
+  await load();
+  toast('Campanha removida');
+}
+
+// ── VIEWS ───────────────────────────────────────────────────────
 function switchView(v) {
   document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
-  const idx = {campanhas:0, insights:1, nova:2}[v];
-  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  document.querySelectorAll('.tab-btn')[{campanhas:0,insights:1,nova:2}[v]].classList.add('active');
   if (v === 'nova') setDates();
 }
 
@@ -432,71 +413,54 @@ function setStatus(type, text) {
   document.getElementById('status-text').textContent = text;
 }
 
-// CONEXÃO RD
+// ── RD STATION ─────────────────────────────────────────────────
 async function conectarRD() {
   const keyMkt = document.getElementById('key-mkt').value.trim();
   const keyCRM = document.getElementById('key-crm').value.trim();
   if (!keyMkt && !keyCRM) { toast('Cole pelo menos uma API key'); return; }
-
   state.rdMktKey = keyMkt;
   state.rdCrmKey = keyCRM;
-
   setStatus('loading', 'Conectando...');
   document.getElementById('btn-conectar').disabled = true;
-
   try {
     let ok = false;
-
     if (keyMkt) {
       const r = await fetch('/api/rd/leads', { headers: { 'x-rd-mkt-key': keyMkt } });
       if (r.ok) {
         const d = await r.json();
         document.getElementById('ins-leads').textContent = d.total_mes;
-        document.getElementById('ins-leads-sub').textContent = `${d.total_geral} leads no total`;
+        document.getElementById('ins-leads-sub').textContent = d.total_geral + ' leads no total';
         ok = true;
       }
     }
-
     if (keyCRM) {
       const [rOpps, rFech] = await Promise.all([
         fetch('/api/rd/oportunidades', { headers: { 'x-rd-crm-key': keyCRM } }),
         fetch('/api/rd/fechados?period=semana', { headers: { 'x-rd-crm-key': keyCRM } })
       ]);
-
       if (rOpps.ok) {
         const d = await rOpps.json();
         document.getElementById('ins-opps').textContent = d.abertas;
-        document.getElementById('ins-opps-sub').textContent = `${d.ganhas} ganhas no total`;
+        document.getElementById('ins-opps-sub').textContent = d.ganhas + ' ganhas no total';
         ok = true;
       }
-
       if (rFech.ok) {
         const d = await rFech.json();
         document.getElementById('ins-fechados').textContent = d.total_pedidos;
-        document.getElementById('ins-fechados-sub').textContent = `R$ ${Math.round(d.valor_total).toLocaleString('pt-BR')} em valor`;
-
+        document.getElementById('ins-fechados-sub').textContent = 'R$ ' + Math.round(d.valor_total).toLocaleString('pt-BR') + ' em valor';
         const opps = parseInt(document.getElementById('ins-opps').textContent) || 0;
         if (opps + d.total_pedidos > 0) {
-          const taxa = Math.round((d.total_pedidos / (opps + d.total_pedidos)) * 100);
-          document.getElementById('ins-taxa').textContent = taxa + '%';
-          document.getElementById('ins-taxa-sub').textContent = 'Pedidos / oportunidades';
+          document.getElementById('ins-taxa').textContent = Math.round((d.total_pedidos / (opps + d.total_pedidos)) * 100) + '%';
         }
-
         state.rankingData = d.ranking || [];
         renderRanking();
         ok = true;
       }
     }
-
     state.conectado = ok;
     if (ok) { setStatus('connected', 'Conectado'); toast('✅ RD Station conectado!'); }
     else { setStatus('error', 'Erro — verifique as keys'); toast('❌ Verifique as API keys'); }
-
-  } catch(e) {
-    setStatus('error', 'Erro de conexão');
-    toast('❌ Erro: ' + e.message);
-  }
-
+  } catch(e) { setStatus('error', 'Erro'); toast('❌ ' + e.message); }
   document.getElementById('btn-conectar').disabled = false;
 }
 
@@ -508,14 +472,9 @@ async function refreshInsights() {
 async function refreshRanking() {
   if (!state.rdCrmKey) { toast('Conecte o RD CRM primeiro'); return; }
   try {
-    const r = await fetch(`/api/rd/fechados?period=${state.periodo}`, { headers: { 'x-rd-crm-key': state.rdCrmKey } });
-    if (r.ok) {
-      const d = await r.json();
-      state.rankingData = d.ranking || [];
-      renderRanking();
-      toast('Ranking atualizado!');
-    }
-  } catch(e) { toast('Erro ao atualizar ranking'); }
+    const r = await fetch('/api/rd/fechados?period=' + state.periodo, { headers: { 'x-rd-crm-key': state.rdCrmKey } });
+    if (r.ok) { const d = await r.json(); state.rankingData = d.ranking || []; renderRanking(); toast('Ranking atualizado!'); }
+  } catch(e) { toast('Erro ao atualizar'); }
 }
 
 function filtrarRanking(periodo, btn) {
@@ -543,61 +502,16 @@ function renderRanking() {
     </tr>`).join('');
 }
 
-// CAMPANHAS
-function salvarCampanha() {
-  const titulo = document.getElementById('f-titulo').value.trim();
-  const setor  = document.getElementById('f-setor').value;
-  const inicio = document.getElementById('f-inicio').value;
-  const fim    = document.getElementById('f-fim').value;
-  const premio = document.getElementById('f-premio').value.trim();
-
-  if (!titulo || !setor || !inicio || !fim || !premio) {
-    toast('Preencha título, setor, período e prêmio');
-    return;
-  }
-
-  state.campanhas.push({
-    id: Date.now(),
-    titulo, setor, inicio, fim, premio,
-    criterio:    document.getElementById('f-criterio').value,
-    desempate:   document.getElementById('f-desempate').value,
-    regras:      document.getElementById('f-regras').value.trim(),
-    abrangencia: document.getElementById('f-abrangencia').value,
-    criada: new Date().toISOString()
-  });
-
-  save();
-  renderCampanhas();
-  switchView('campanhas');
-  toast('🚀 Campanha publicada!');
-  ['f-titulo','f-premio','f-regras'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-setor').value = '';
-}
-
-function deletarCampanha(id) {
-  state.campanhas = state.campanhas.filter(c => c.id !== id);
-  save();
-  renderCampanhas();
-  toast('Campanha removida');
-}
-
+// ── RENDER CAMPANHAS ────────────────────────────────────────────
 function renderCampanhas() {
   const container = document.getElementById('campanhas-container');
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   const ativas = state.campanhas.filter(c => new Date(c.fim) >= hoje);
-
-  document.getElementById('campanha-count').textContent =
-    ativas.length + ' campanha' + (ativas.length !== 1 ? 's' : '');
-
+  document.getElementById('campanha-count').textContent = ativas.length + ' campanha' + (ativas.length !== 1 ? 's' : '');
   if (!ativas.length) {
-    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <div class="empty-icon">🏆</div>
-      <strong>Nenhuma campanha ativa</strong>
-      <p>Clique em "+ Nova" para criar a primeira campanha da semana</p>
-    </div>`;
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏆</div><strong>Nenhuma campanha ativa</strong><p>Clique em "+ Nova" para criar a primeira campanha da semana</p></div>`;
     return;
   }
-
   container.innerHTML = ativas.map(c => {
     const fim = new Date(c.fim);
     const diff = Math.ceil((fim - hoje) / (1000*60*60*24));
@@ -610,10 +524,7 @@ function renderCampanhas() {
         <div class="campanha-badge">Ativa</div>
       </div>
       <div class="campanha-body">
-        <div class="campanha-premio">
-          <div class="label">🏆 Prêmio</div>
-          <div class="value">${c.premio}</div>
-        </div>
+        <div class="campanha-premio"><div class="label">🏆 Prêmio</div><div class="value">${c.premio}</div></div>
         <div class="campanha-regras">
           <strong>Critério:</strong> ${c.criterio}<br>
           <strong>Desempate:</strong> ${c.desempate}<br>
@@ -642,32 +553,17 @@ function verRanking(id) {
   const c = state.campanhas.find(x => x.id === id);
   if (!c) return;
   document.getElementById('modal-title').textContent = c.titulo.toUpperCase();
-
   if (!state.conectado || !state.rankingData.length) {
-    document.getElementById('modal-body').innerHTML = `
-      <div style="text-align:center;padding:2rem;color:var(--cinza)">
-        <div style="font-size:40px;margin-bottom:1rem">📡</div>
-        <strong style="color:var(--verde)">Conecte o RD Station</strong>
-        <p style="font-size:13px;margin-top:8px">Cole as API keys no topo para ver o ranking em tempo real</p>
-      </div>`;
+    document.getElementById('modal-body').innerHTML = `<div style="text-align:center;padding:2rem;color:var(--cinza)"><div style="font-size:40px;margin-bottom:1rem">📡</div><strong style="color:var(--verde)">Conecte o RD Station</strong><p style="font-size:13px;margin-top:8px">Cole as API keys no topo para ver o ranking em tempo real</p></div>`;
   } else {
     const medals = ['🥇','🥈','🥉'];
-    document.getElementById('modal-body').innerHTML = `
-      <div style="margin-bottom:4px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--cinza)">
-        Ranking por ${c.criterio}
-      </div>
-      ${state.rankingData.slice(0,5).map((v,i) => `
+    document.getElementById('modal-body').innerHTML =
+      state.rankingData.slice(0,5).map((v,i) => `
         <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--cinza-light)">
-          <span style="font-size:22px;width:32px">${medals[i] || (i+1)+'.'}</span>
-          <div style="flex:1">
-            <div style="font-weight:600;font-size:14px">${v.nome}</div>
-            <div style="font-size:11px;color:var(--cinza)">${v.equipe}</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-family:'DM Mono',monospace;font-weight:600;color:var(--verde)">${v.pedidos} pedidos</div>
-            <div style="font-size:11px;color:var(--cinza)">R$ ${Math.round(v.valor).toLocaleString('pt-BR')}</div>
-          </div>
-        </div>`).join('')}`;
+          <span style="font-size:22px;width:32px">${medals[i]||(i+1)+'.'}</span>
+          <div style="flex:1"><div style="font-weight:600;font-size:14px">${v.nome}</div><div style="font-size:11px;color:var(--cinza)">${v.equipe}</div></div>
+          <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-weight:600;color:var(--verde)">${v.pedidos} pedidos</div><div style="font-size:11px;color:var(--cinza)">R$ ${Math.round(v.valor).toLocaleString('pt-BR')}</div></div>
+        </div>`).join('');
   }
   document.getElementById('modal-overlay').classList.add('open');
 }
@@ -677,7 +573,6 @@ function fecharModal(e) {
     document.getElementById('modal-overlay').classList.remove('open');
 }
 
-// INIT
 load();
 </script>
 </body>
