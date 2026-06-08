@@ -34,7 +34,9 @@ app.get('/api/rd/oportunidades', async (req, res) => {
     if (!r.ok) return res.status(r.status).json({ error: 'Erro RD CRM' });
     const data = await r.json();
     const deals = data.deals || [];
-    res.json({ abertas: deals.filter(d => !d.win && !d.lost).length, ganhas: deals.filter(d => d.win).length, total: deals.length });
+    const abertas = deals.filter(d => !d.win && !d.lost);
+    const ganhas = deals.filter(d => d.win);
+    res.json({ abertas: abertas.length, ganhas: ganhas.length, total: deals.length });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -47,21 +49,36 @@ app.get('/api/rd/fechados', async (req, res) => {
     const inicio = new Date();
     if (period === 'semana') { inicio.setDate(hoje.getDate() - 6); } else { inicio.setDate(1); }
     inicio.setHours(0,0,0,0);
+
+    // Busca TODOS os deals sem filtro win para pegar "Vendida"
     let page = 1, allDeals = [];
     while (true) {
-      const r = await fetch(`https://crm.rdstation.com/api/v1/deals?page=${page}&limit=200&win=true`, { headers: { 'token': key } });
+      const r = await fetch(`https://crm.rdstation.com/api/v1/deals?page=${page}&limit=200`, {
+        headers: { 'token': key }
+      });
       if (!r.ok) break;
       const data = await r.json();
       const deals = data.deals || [];
       if (!deals.length) break;
       allDeals = allDeals.concat(deals);
       if (deals.length < 200) break;
-      page++; if (page > 10) break;
+      page++; if (page > 20) break;
     }
-    const filtrados = allDeals.filter(d => {
+
+    // Filtra apenas deals Vendidos (win=true OU deal_stage com "vend" no nome)
+    const vendidos = allDeals.filter(d => {
+      const isWin = d.win === true;
+      const stageName = (d.deal_stage?.name || '').toLowerCase();
+      const isVendida = stageName.includes('vend');
+      return isWin || isVendida;
+    });
+
+    // Filtra pelo período usando updated_at ou closed_at
+    const filtrados = vendidos.filter(d => {
       const dt = d.closed_at ? new Date(d.closed_at) : new Date(d.updated_at);
       return dt >= inicio && dt <= hoje;
     });
+
     const porVendedor = {};
     filtrados.forEach(deal => {
       const nome = deal.user?.name || 'Sem responsável';
@@ -70,8 +87,11 @@ app.get('/api/rd/fechados', async (req, res) => {
       porVendedor[nome].pedidos++;
       porVendedor[nome].valor += parseFloat(deal.amount_montly || deal.amount || 0);
     });
+
     const ranking = Object.values(porVendedor).sort((a,b) => b.pedidos - a.pedidos || b.valor - a.valor);
-    res.json({ total_pedidos: filtrados.length, valor_total: filtrados.reduce((acc,d) => acc + parseFloat(d.amount_montly || d.amount || 0), 0), periodo: period, ranking });
+    const valorTotal = filtrados.reduce((acc,d) => acc + parseFloat(d.amount_montly || d.amount || 0), 0);
+
+    res.json({ total_pedidos: filtrados.length, valor_total: valorTotal, periodo: period, ranking, debug_total_deals: allDeals.length, debug_vendidos: vendidos.length });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
