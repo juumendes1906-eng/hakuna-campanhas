@@ -1,0 +1,14 @@
+{
+  "name": "hakuna-campanhas",
+  "version": "1.0.0",
+  "description": "Central de Campanhas Hakuna Matata Brindes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0",
+    "cors": "^2.8.5"
+  }
+}
