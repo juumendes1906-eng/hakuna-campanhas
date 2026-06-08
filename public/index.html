@@ -6,49 +6,48 @@
 <title>Hakuna | Central de Campanhas</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --verde: #0D3B1E;
-    --verde-mid: #0F6E56;
-    --verde-light: #1D9E75;
-    --amarelo: #F5C518;
-    --amarelo-light: #FAD85A;
-    --cinza: #8A8A7A;
-    --cinza-light: #E8E4DA;
-    --danger: #E24B4A;
-    --card-bg: #FFFFFF;
-    --page-bg: #F5F2EB;
-    --border: #DDD9CE;
-  }
+  :root { --verde:#0D3B1E; --verde-mid:#0F6E56; --verde-light:#1D9E75; --amarelo:#F5C518; --amarelo-light:#FAD85A; --cinza:#8A8A7A; --cinza-light:#E8E4DA; --danger:#E24B4A; --card-bg:#FFFFFF; --page-bg:#F5F2EB; --border:#DDD9CE; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'DM Sans',sans-serif; background:var(--page-bg); color:var(--verde); min-height:100vh; }
+
+  /* PIN SCREEN */
+  #pin-screen { position:fixed; inset:0; background:var(--verde); display:flex; align-items:center; justify-content:center; z-index:999; }
+  #pin-screen.hidden { display:none; }
+  .pin-box { text-align:center; padding:2.5rem; background:rgba(255,255,255,0.05); border-radius:20px; border:1px solid rgba(255,255,255,0.1); width:320px; }
+  .pin-logo { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--amarelo); letter-spacing:3px; margin-bottom:8px; }
+  .pin-logo span { color:#fff; }
+  .pin-sub { font-size:13px; color:#9FE1CB; margin-bottom:2rem; }
+  .pin-input { width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:14px; text-align:center; font-family:'DM Mono',monospace; font-size:22px; letter-spacing:8px; color:#fff; margin-bottom:1rem; }
+  .pin-input:focus { outline:none; border-color:var(--amarelo); }
+  .pin-btn { width:100%; background:var(--amarelo); color:var(--verde); border:none; border-radius:10px; padding:12px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:15px; cursor:pointer; transition:all 0.2s; }
+  .pin-btn:hover { background:var(--amarelo-light); }
+  .pin-error { color:#ff8a8a; font-size:13px; margin-top:10px; min-height:18px; }
 
   header { background:var(--verde); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:64px; position:sticky; top:0; z-index:100; border-bottom:3px solid var(--amarelo); }
   .logo { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--amarelo); letter-spacing:2px; }
   .logo span { color:#fff; }
+  .header-right { display:flex; align-items:center; gap:12px; }
   .header-tabs { display:flex; gap:4px; }
   .tab-btn { padding:6px 16px; border-radius:6px; border:none; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; background:transparent; color:#9FE1CB; transition:all 0.2s; }
   .tab-btn.active { background:var(--amarelo); color:var(--verde); }
   .tab-btn:hover:not(.active) { background:rgba(255,255,255,0.1); color:#fff; }
+  .btn-sair { font-size:12px; color:rgba(255,255,255,0.4); background:none; border:none; cursor:pointer; }
+  .btn-sair:hover { color:#fff; }
 
   main { max-width:1100px; margin:0 auto; padding:2rem; }
 
-  #api-banner { background:var(--verde); border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
-  .banner-text { flex:1; min-width:200px; }
-  .banner-text p { font-size:13px; color:#9FE1CB; margin-top:2px; }
-  .banner-text strong { color:#fff; font-size:14px; }
-  .api-inputs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .api-inputs input { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:8px 12px; color:#fff; font-family:'DM Mono',monospace; font-size:12px; width:210px; }
-  .api-inputs input::placeholder { color:rgba(255,255,255,0.35); }
-  .api-inputs input:focus { outline:none; border-color:var(--amarelo); }
-  .btn-connect { background:var(--amarelo); color:var(--verde); border:none; border-radius:8px; padding:8px 18px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
-  .btn-connect:hover { background:var(--amarelo-light); }
-  .btn-connect:disabled { opacity:0.5; cursor:not-allowed; }
-  .connection-status { display:flex; align-items:center; gap:6px; font-size:13px; }
+  .rd-status-bar { background:var(--verde); border-radius:12px; padding:1rem 1.5rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .rd-status-info { display:flex; align-items:center; gap:10px; }
+  .rd-status-info span { font-size:13px; color:#9FE1CB; }
+  .rd-status-info strong { color:#fff; }
+  .connection-status { display:flex; align-items:center; gap:6px; font-size:12px; color:#9FE1CB; }
   .status-dot { width:8px; height:8px; border-radius:50%; background:var(--cinza); }
   .status-dot.connected { background:#4CAF50; box-shadow:0 0 6px #4CAF50; }
   .status-dot.error { background:var(--danger); }
   .status-dot.loading { background:var(--amarelo); animation:pulse 1s infinite; }
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+  .btn-atualizar { background:var(--amarelo); color:var(--verde); border:none; border-radius:8px; padding:7px 16px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:13px; cursor:pointer; }
+  .btn-atualizar:hover { background:var(--amarelo-light); }
 
   .view { display:none; }
   .view.active { display:block; }
@@ -96,17 +95,14 @@
   .ranking-filter { display:flex; gap:6px; }
   .filter-btn { font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#9FE1CB; cursor:pointer; transition:all 0.2s; }
   .filter-btn.active { background:var(--amarelo); color:var(--verde); border-color:var(--amarelo); }
-  .btn-refresh { font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#9FE1CB; cursor:pointer; }
-  .btn-refresh:hover { background:rgba(255,255,255,0.1); }
+  .btn-refresh { font-size:11px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#9FE1CB; cursor:pointer; }
   table { width:100%; border-collapse:collapse; }
   th { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--cinza); padding:10px 1.5rem; text-align:left; border-bottom:1px solid var(--border); background:#FAFAF8; }
   td { padding:12px 1.5rem; font-size:13px; border-bottom:1px solid var(--cinza-light); color:var(--verde); }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:#FAFAF8; }
   .rank-pos { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--cinza); width:40px; }
-  .rank-pos.gold { color:#F5C518; }
-  .rank-pos.silver { color:#9E9E9E; }
-  .rank-pos.bronze { color:#CD7F32; }
+  .rank-pos.gold { color:#F5C518; } .rank-pos.silver { color:#9E9E9E; } .rank-pos.bronze { color:#CD7F32; }
   .rank-name { font-weight:600; }
   .rank-equipe { font-size:11px; color:var(--cinza); margin-top:2px; }
   .rank-num { font-family:'DM Mono',monospace; font-size:15px; font-weight:500; text-align:right; }
@@ -125,7 +121,7 @@
   input:focus, select:focus, textarea:focus { outline:none; border-color:var(--verde-light); }
   textarea { resize:vertical; min-height:80px; }
   .form-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:1.5rem; }
-  .btn-primary { background:var(--verde); color:#fff; border:none; border-radius:8px; padding:10px 24px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:14px; cursor:pointer; transition:all 0.2s; }
+  .btn-primary { background:var(--verde); color:#fff; border:none; border-radius:8px; padding:10px 24px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:14px; cursor:pointer; }
   .btn-primary:hover { background:var(--verde-mid); }
   .btn-secondary { background:transparent; color:var(--cinza); border:1px solid var(--border); border-radius:8px; padding:10px 20px; font-family:'DM Sans',sans-serif; font-weight:500; font-size:14px; cursor:pointer; }
 
@@ -142,8 +138,6 @@
 
   @media(max-width:600px){
     .form-grid { grid-template-columns:1fr; }
-    .api-inputs { flex-direction:column; width:100%; }
-    .api-inputs input { width:100%; }
     main { padding:1rem; }
     .insights-grid { grid-template-columns:1fr 1fr; }
     header { padding:0 1rem; }
@@ -153,30 +147,45 @@
 </head>
 <body>
 
+<!-- TELA DE PIN -->
+<div id="pin-screen">
+  <div class="pin-box">
+    <div class="pin-logo">HAKUNA <span>CAMPANHAS</span></div>
+    <div class="pin-sub">Digite o PIN de acesso</div>
+    <input type="password" class="pin-input" id="pin-input" maxlength="6" placeholder="••••" onkeydown="if(event.key==='Enter')verificarPin()">
+    <button class="pin-btn" onclick="verificarPin()">Entrar →</button>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
 <header>
   <div class="logo">HAKUNA <span>CAMPANHAS</span></div>
-  <div class="header-tabs">
-    <button class="tab-btn active" onclick="switchView('campanhas')">Campanhas</button>
-    <button class="tab-btn" onclick="switchView('insights')">Insights RD</button>
-    <button class="tab-btn" onclick="switchView('nova')">+ Nova</button>
+  <div class="header-right">
+    <div class="header-tabs">
+      <button class="tab-btn active" onclick="switchView('campanhas')">Campanhas</button>
+      <button class="tab-btn" onclick="switchView('insights')">Insights RD</button>
+      <button class="tab-btn" onclick="switchView('nova')">+ Nova</button>
+    </div>
+    <button class="btn-sair" onclick="sair()">Sair</button>
   </div>
 </header>
 
 <main>
-  <div id="api-banner">
-    <div style="font-size:24px">🔌</div>
-    <div class="banner-text">
-      <strong>Conectar ao RD Station</strong>
-      <p>Cole suas API keys para puxar leads, conversões e ranking dos vendedores em tempo real</p>
+  <!-- STATUS RD -->
+  <div class="rd-status-bar">
+    <div class="rd-status-info">
+      <span>🔌</span>
+      <div>
+        <strong>RD Station</strong>
+        <span id="rd-status-txt"> — clique em Atualizar para carregar os dados</span>
+      </div>
     </div>
-    <div class="api-inputs">
-      <input type="password" id="key-mkt" placeholder="API Key — RD Marketing" autocomplete="off">
-      <input type="password" id="key-crm" placeholder="API Key — RD CRM" autocomplete="off">
-      <button class="btn-connect" id="btn-conectar" onclick="conectarRD()">Conectar</button>
+    <div style="display:flex;align-items:center;gap:12px">
       <div class="connection-status">
         <div class="status-dot" id="status-dot"></div>
-        <span id="status-text" style="color:#9FE1CB;font-size:12px">Desconectado</span>
+        <span id="status-text">Desconectado</span>
       </div>
+      <button class="btn-atualizar" onclick="conectarRD()">↺ Atualizar dados</button>
     </div>
   </div>
 
@@ -199,13 +208,13 @@
   <div class="view" id="view-insights">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
       <div class="section-title">INSIGHTS <span>RD STATION</span></div>
-      <button class="btn-connect" style="font-size:12px;padding:6px 14px" onclick="refreshInsights()">↺ Atualizar</button>
+      <button class="btn-atualizar" onclick="conectarRD()">↺ Atualizar</button>
     </div>
     <div class="insights-grid">
       <div class="insight-card highlight">
         <div class="insight-label">Leads este mês</div>
         <div class="insight-value" id="ins-leads">—</div>
-        <div class="insight-sub" id="ins-leads-sub">Conecte o RD para ver</div>
+        <div class="insight-sub" id="ins-leads-sub">Clique em Atualizar</div>
       </div>
       <div class="insight-card">
         <div class="insight-label">Oportunidades abertas</div>
@@ -236,15 +245,10 @@
       </div>
       <table>
         <thead>
-          <tr>
-            <th>#</th><th>Vendedor</th>
-            <th style="text-align:right">Pedidos</th>
-            <th class="rank-bar-cell"></th>
-            <th style="text-align:right">Valor Total</th>
-          </tr>
+          <tr><th>#</th><th>Vendedor</th><th style="text-align:right">Pedidos</th><th class="rank-bar-cell"></th><th style="text-align:right">Valor Total</th></tr>
         </thead>
         <tbody id="ranking-body">
-          <tr><td colspan="5" style="text-align:center;color:var(--cinza);padding:2rem;font-size:13px">Conecte o RD Station para ver o ranking</td></tr>
+          <tr><td colspan="5" style="text-align:center;color:var(--cinza);padding:2rem;font-size:13px">Clique em "Atualizar dados" para carregar o ranking</td></tr>
         </tbody>
       </table>
     </div>
@@ -255,61 +259,22 @@
     <div class="section-title">NOVA <span>CAMPANHA</span></div>
     <div class="form-card">
       <div class="form-grid">
-        <div class="form-group">
-          <label>Título da campanha</label>
-          <input type="text" id="f-titulo" placeholder="Ex: Copa dos Vendedores">
+        <div class="form-group"><label>Título da campanha</label><input type="text" id="f-titulo" placeholder="Ex: Copa dos Vendedores"></div>
+        <div class="form-group"><label>Setor</label>
+          <select id="f-setor"><option value="">Selecione...</option><option>Vendas</option><option>Marketing</option><option>Operações</option><option>CS / Sucesso do Cliente</option><option>Todos os setores</option></select>
         </div>
-        <div class="form-group">
-          <label>Setor</label>
-          <select id="f-setor">
-            <option value="">Selecione...</option>
-            <option>Vendas</option>
-            <option>Marketing</option>
-            <option>Operações</option>
-            <option>CS / Sucesso do Cliente</option>
-            <option>Todos os setores</option>
-          </select>
+        <div class="form-group"><label>Data início</label><input type="date" id="f-inicio"></div>
+        <div class="form-group"><label>Data fim</label><input type="date" id="f-fim"></div>
+        <div class="form-group full"><label>Prêmio</label><input type="text" id="f-premio" placeholder="Ex: Corta Vento Oficial da Empresa"></div>
+        <div class="form-group"><label>Critério principal</label>
+          <select id="f-criterio"><option>Nº de pedidos fechados</option><option>Valor total em R$</option><option>Nº de leads gerados</option><option>Nº de oportunidades abertas</option></select>
         </div>
-        <div class="form-group">
-          <label>Data início</label>
-          <input type="date" id="f-inicio">
+        <div class="form-group"><label>Critério de desempate</label>
+          <select id="f-desempate"><option>Valor total em R$</option><option>Nº de pedidos fechados</option><option>Nº de leads gerados</option></select>
         </div>
-        <div class="form-group">
-          <label>Data fim</label>
-          <input type="date" id="f-fim">
-        </div>
-        <div class="form-group full">
-          <label>Prêmio</label>
-          <input type="text" id="f-premio" placeholder="Ex: Corta Vento Oficial da Empresa">
-        </div>
-        <div class="form-group">
-          <label>Critério principal</label>
-          <select id="f-criterio">
-            <option>Nº de pedidos fechados</option>
-            <option>Valor total em R$</option>
-            <option>Nº de leads gerados</option>
-            <option>Nº de oportunidades abertas</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Critério de desempate</label>
-          <select id="f-desempate">
-            <option>Valor total em R$</option>
-            <option>Nº de pedidos fechados</option>
-            <option>Nº de leads gerados</option>
-          </select>
-        </div>
-        <div class="form-group full">
-          <label>Regras adicionais (opcional)</label>
-          <textarea id="f-regras" placeholder="Ex: Válido por equipe — o top vendedor de cada time leva o prêmio"></textarea>
-        </div>
-        <div class="form-group full">
-          <label>Abrangência</label>
-          <select id="f-abrangencia">
-            <option>Por equipe (top de cada time vence)</option>
-            <option>Geral (top 1 ganha)</option>
-            <option>Top 3 geral</option>
-          </select>
+        <div class="form-group full"><label>Regras adicionais (opcional)</label><textarea id="f-regras" placeholder="Ex: Válido por equipe — o top vendedor de cada time leva o prêmio"></textarea></div>
+        <div class="form-group full"><label>Abrangência</label>
+          <select id="f-abrangencia"><option>Por equipe (top de cada time vence)</option><option>Geral (top 1 ganha)</option><option>Top 3 geral</option></select>
         </div>
       </div>
       <div class="form-actions">
@@ -322,29 +287,51 @@
 
 <div id="modal-overlay" onclick="fecharModal(event)">
   <div class="modal">
-    <div class="modal-header">
-      <h3 id="modal-title">RANKING DA CAMPANHA</h3>
-      <button class="modal-close" onclick="fecharModal()">✕</button>
-    </div>
+    <div class="modal-header"><h3 id="modal-title">RANKING DA CAMPANHA</h3><button class="modal-close" onclick="fecharModal()">✕</button></div>
     <div class="modal-body" id="modal-body"></div>
   </div>
 </div>
 <div id="toast"></div>
 
 <script>
-const state = {
-  campanhas: [],
-  rdMktKey: '',
-  rdCrmKey: '',
-  conectado: false,
-  rankingData: [],
-  periodo: 'semana'
-};
+let PIN_SESSION = '';
+const state = { campanhas:[], conectado:false, rankingData:[], periodo:'semana' };
 
-// ── CAMPANHAS VIA SERVIDOR ──────────────────────────────────────
+// ── PIN ─────────────────────────────────────────────────────────
+async function verificarPin() {
+  const pin = document.getElementById('pin-input').value.trim();
+  if (!pin) return;
+  try {
+    const r = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin}) });
+    if (r.ok) {
+      PIN_SESSION = pin;
+      sessionStorage.setItem('hk_pin', pin);
+      document.getElementById('pin-screen').classList.add('hidden');
+      await load();
+      await conectarRD();
+    } else {
+      document.getElementById('pin-error').textContent = 'PIN incorreto. Tente novamente.';
+      document.getElementById('pin-input').value = '';
+    }
+  } catch(e) { document.getElementById('pin-error').textContent = 'Erro de conexão.'; }
+}
+
+function sair() {
+  sessionStorage.removeItem('hk_pin');
+  PIN_SESSION = '';
+  document.getElementById('pin-screen').classList.remove('hidden');
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').textContent = '';
+}
+
+function headers() {
+  return { 'Content-Type':'application/json', 'x-access-pin': PIN_SESSION };
+}
+
+// ── CAMPANHAS ───────────────────────────────────────────────────
 async function load() {
   try {
-    const r = await fetch('/api/campanhas');
+    const r = await fetch('/api/campanhas', { headers: {'x-access-pin': PIN_SESSION} });
     state.campanhas = await r.json();
   } catch(e) { state.campanhas = []; }
   renderCampanhas();
@@ -357,21 +344,8 @@ async function salvarCampanha() {
   const fim    = document.getElementById('f-fim').value;
   const premio = document.getElementById('f-premio').value.trim();
   if (!titulo || !setor || !inicio || !fim || !premio) { toast('Preencha título, setor, período e prêmio'); return; }
-
-  const campanha = {
-    titulo, setor, inicio, fim, premio,
-    criterio:    document.getElementById('f-criterio').value,
-    desempate:   document.getElementById('f-desempate').value,
-    regras:      document.getElementById('f-regras').value.trim(),
-    abrangencia: document.getElementById('f-abrangencia').value
-  };
-
-  await fetch('/api/campanhas', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(campanha)
-  });
-
+  const campanha = { titulo, setor, inicio, fim, premio, criterio:document.getElementById('f-criterio').value, desempate:document.getElementById('f-desempate').value, regras:document.getElementById('f-regras').value.trim(), abrangencia:document.getElementById('f-abrangencia').value };
+  await fetch('/api/campanhas', { method:'POST', headers:headers(), body:JSON.stringify(campanha) });
   await load();
   switchView('campanhas');
   toast('🚀 Campanha publicada!');
@@ -380,7 +354,7 @@ async function salvarCampanha() {
 }
 
 async function deletarCampanha(id) {
-  await fetch('/api/campanhas/' + id, { method: 'DELETE' });
+  await fetch('/api/campanhas/'+id, { method:'DELETE', headers:{'x-access-pin':PIN_SESSION} });
   await load();
   toast('Campanha removida');
 }
@@ -389,110 +363,82 @@ async function deletarCampanha(id) {
 function switchView(v) {
   document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
+  document.getElementById('view-'+v).classList.add('active');
   document.querySelectorAll('.tab-btn')[{campanhas:0,insights:1,nova:2}[v]].classList.add('active');
-  if (v === 'nova') setDates();
+  if (v==='nova') setDates();
 }
-
 function setDates() {
-  const t = new Date(), f = new Date();
-  f.setDate(t.getDate() + 6);
-  document.getElementById('f-inicio').value = t.toISOString().split('T')[0];
-  document.getElementById('f-fim').value = f.toISOString().split('T')[0];
+  const t=new Date(),f=new Date(); f.setDate(t.getDate()+6);
+  document.getElementById('f-inicio').value=t.toISOString().split('T')[0];
+  document.getElementById('f-fim').value=f.toISOString().split('T')[0];
 }
-
 function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3500);
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3500);
 }
-
-function setStatus(type, text) {
-  document.getElementById('status-dot').className = 'status-dot ' + type;
-  document.getElementById('status-text').textContent = text;
+function setStatus(type,text) {
+  document.getElementById('status-dot').className='status-dot '+type;
+  document.getElementById('status-text').textContent=text;
 }
 
 // ── RD STATION ─────────────────────────────────────────────────
 async function conectarRD() {
-  const keyMkt = document.getElementById('key-mkt').value.trim();
-  const keyCRM = document.getElementById('key-crm').value.trim();
-  if (!keyMkt && !keyCRM) { toast('Cole pelo menos uma API key'); return; }
-  state.rdMktKey = keyMkt;
-  state.rdCrmKey = keyCRM;
-  setStatus('loading', 'Conectando...');
-  document.getElementById('btn-conectar').disabled = true;
+  setStatus('loading','Carregando...');
   try {
     let ok = false;
-    if (keyMkt) {
-      const r = await fetch('/api/rd/leads', { headers: { 'x-rd-mkt-key': keyMkt } });
-      if (r.ok) {
-        const d = await r.json();
-        document.getElementById('ins-leads').textContent = d.total_mes;
-        document.getElementById('ins-leads-sub').textContent = d.total_geral + ' leads no total';
-        ok = true;
-      }
+    const rLeads = await fetch('/api/rd/leads', { headers:{'x-access-pin':PIN_SESSION} });
+    if (rLeads.ok) {
+      const d = await rLeads.json();
+      document.getElementById('ins-leads').textContent = d.total_mes;
+      document.getElementById('ins-leads-sub').textContent = d.total_geral+' leads no total';
+      ok = true;
     }
-    if (keyCRM) {
-      const [rOpps, rFech] = await Promise.all([
-        fetch('/api/rd/oportunidades', { headers: { 'x-rd-crm-key': keyCRM } }),
-        fetch('/api/rd/fechados?period=semana', { headers: { 'x-rd-crm-key': keyCRM } })
-      ]);
-      if (rOpps.ok) {
-        const d = await rOpps.json();
-        document.getElementById('ins-opps').textContent = d.abertas;
-        document.getElementById('ins-opps-sub').textContent = d.ganhas + ' ganhas no total';
-        ok = true;
-      }
-      if (rFech.ok) {
-        const d = await rFech.json();
-        document.getElementById('ins-fechados').textContent = d.total_pedidos;
-        document.getElementById('ins-fechados-sub').textContent = 'R$ ' + Math.round(d.valor_total).toLocaleString('pt-BR') + ' em valor';
-        const opps = parseInt(document.getElementById('ins-opps').textContent) || 0;
-        if (opps + d.total_pedidos > 0) {
-          document.getElementById('ins-taxa').textContent = Math.round((d.total_pedidos / (opps + d.total_pedidos)) * 100) + '%';
-        }
-        state.rankingData = d.ranking || [];
-        renderRanking();
-        ok = true;
-      }
+    const [rOpps, rFech] = await Promise.all([
+      fetch('/api/rd/oportunidades', { headers:{'x-access-pin':PIN_SESSION} }),
+      fetch('/api/rd/fechados?period=semana', { headers:{'x-access-pin':PIN_SESSION} })
+    ]);
+    if (rOpps.ok) {
+      const d = await rOpps.json();
+      document.getElementById('ins-opps').textContent = d.abertas;
+      document.getElementById('ins-opps-sub').textContent = d.ganhas+' ganhas no total';
+      ok = true;
+    }
+    if (rFech.ok) {
+      const d = await rFech.json();
+      document.getElementById('ins-fechados').textContent = d.total_pedidos;
+      document.getElementById('ins-fechados-sub').textContent = 'R$ '+Math.round(d.valor_total).toLocaleString('pt-BR')+' em valor';
+      const opps = parseInt(document.getElementById('ins-opps').textContent)||0;
+      if (opps+d.total_pedidos>0) document.getElementById('ins-taxa').textContent = Math.round((d.total_pedidos/(opps+d.total_pedidos))*100)+'%';
+      state.rankingData = d.ranking||[];
+      renderRanking();
+      ok = true;
     }
     state.conectado = ok;
-    if (ok) { setStatus('connected', 'Conectado'); toast('✅ RD Station conectado!'); }
-    else { setStatus('error', 'Erro — verifique as keys'); toast('❌ Verifique as API keys'); }
-  } catch(e) { setStatus('error', 'Erro'); toast('❌ ' + e.message); }
-  document.getElementById('btn-conectar').disabled = false;
-}
-
-async function refreshInsights() {
-  if (!state.rdMktKey && !state.rdCrmKey) { toast('Conecte o RD Station primeiro'); return; }
-  await conectarRD();
+    setStatus(ok?'connected':'error', ok?'Conectado':'Erro ao carregar');
+    document.getElementById('rd-status-txt').textContent = ok ? ' — dados atualizados agora' : ' — erro ao conectar';
+  } catch(e) { setStatus('error','Erro'); }
 }
 
 async function refreshRanking() {
-  if (!state.rdCrmKey) { toast('Conecte o RD CRM primeiro'); return; }
   try {
-    const r = await fetch('/api/rd/fechados?period=' + state.periodo, { headers: { 'x-rd-crm-key': state.rdCrmKey } });
-    if (r.ok) { const d = await r.json(); state.rankingData = d.ranking || []; renderRanking(); toast('Ranking atualizado!'); }
+    const r = await fetch('/api/rd/fechados?period='+state.periodo, { headers:{'x-access-pin':PIN_SESSION} });
+    if (r.ok) { const d=await r.json(); state.rankingData=d.ranking||[]; renderRanking(); toast('Ranking atualizado!'); }
   } catch(e) { toast('Erro ao atualizar'); }
 }
 
 function filtrarRanking(periodo, btn) {
   state.periodo = periodo;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   refreshRanking();
 }
 
 function renderRanking() {
   const tbody = document.getElementById('ranking-body');
-  if (!state.rankingData.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--cinza);padding:2rem;font-size:13px">Nenhum dado disponível para o período</td></tr>';
-    return;
-  }
-  const max = state.rankingData[0]?.pedidos || 1;
+  if (!state.rankingData.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--cinza);padding:2rem;font-size:13px">Nenhum dado para o período</td></tr>'; return; }
+  const max = state.rankingData[0]?.pedidos||1;
   const cls = ['gold','silver','bronze'];
-  tbody.innerHTML = state.rankingData.slice(0,15).map((v,i) => `
+  tbody.innerHTML = state.rankingData.slice(0,15).map((v,i)=>`
     <tr>
       <td><div class="rank-pos ${cls[i]||''}">${i+1}</div></td>
       <td><div class="rank-name">${v.nome}</div><div class="rank-equipe">${v.equipe}</div></td>
@@ -502,20 +448,15 @@ function renderRanking() {
     </tr>`).join('');
 }
 
-// ── RENDER CAMPANHAS ────────────────────────────────────────────
 function renderCampanhas() {
   const container = document.getElementById('campanhas-container');
   const hoje = new Date(); hoje.setHours(0,0,0,0);
-  const ativas = state.campanhas.filter(c => new Date(c.fim) >= hoje);
-  document.getElementById('campanha-count').textContent = ativas.length + ' campanha' + (ativas.length !== 1 ? 's' : '');
-  if (!ativas.length) {
-    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏆</div><strong>Nenhuma campanha ativa</strong><p>Clique em "+ Nova" para criar a primeira campanha da semana</p></div>`;
-    return;
-  }
-  container.innerHTML = ativas.map(c => {
-    const fim = new Date(c.fim);
-    const diff = Math.ceil((fim - hoje) / (1000*60*60*24));
-    const diasLabel = diff <= 0 ? 'Último dia!' : diff === 1 ? '1 dia restante' : diff + ' dias restantes';
+  const ativas = state.campanhas.filter(c=>new Date(c.fim)>=hoje);
+  document.getElementById('campanha-count').textContent = ativas.length+' campanha'+(ativas.length!==1?'s':'');
+  if (!ativas.length) { container.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏆</div><strong>Nenhuma campanha ativa</strong><p>Clique em "+ Nova" para criar a primeira campanha da semana</p></div>`; return; }
+  container.innerHTML = ativas.map(c=>{
+    const fim=new Date(c.fim), diff=Math.ceil((fim-hoje)/(1000*60*60*24));
+    const diasLabel=diff<=0?'Último dia!':diff===1?'1 dia restante':diff+' dias restantes';
     return `<div class="campanha-card">
       <div class="campanha-card-header">
         <div class="campanha-setor">${c.setor}</div>
@@ -525,55 +466,52 @@ function renderCampanhas() {
       </div>
       <div class="campanha-body">
         <div class="campanha-premio"><div class="label">🏆 Prêmio</div><div class="value">${c.premio}</div></div>
-        <div class="campanha-regras">
-          <strong>Critério:</strong> ${c.criterio}<br>
-          <strong>Desempate:</strong> ${c.desempate}<br>
-          <strong>Abrangência:</strong> ${c.abrangencia}
-          ${c.regras ? '<br><br>' + c.regras : ''}
-        </div>
+        <div class="campanha-regras"><strong>Critério:</strong> ${c.criterio}<br><strong>Desempate:</strong> ${c.desempate}<br><strong>Abrangência:</strong> ${c.abrangencia}${c.regras?'<br><br>'+c.regras:''}</div>
       </div>
       <div class="campanha-footer">
         <div class="dias-restantes">⏱ <strong>${diasLabel}</strong></div>
-        <div>
-          <button class="btn-ranking" onclick="verRanking(${c.id})">Ver ranking →</button>
-          <button class="btn-del" onclick="deletarCampanha(${c.id})" title="Remover">✕</button>
-        </div>
+        <div><button class="btn-ranking" onclick="verRanking(${c.id})">Ver ranking →</button><button class="btn-del" onclick="deletarCampanha(${c.id})" title="Remover">✕</button></div>
       </div>
     </div>`;
   }).join('');
 }
 
-function fmt(s) {
-  if (!s) return '';
-  const [y,m,d] = s.split('-');
-  return d + '/' + m;
-}
+function fmt(s) { if(!s)return''; const[y,m,d]=s.split('-'); return d+'/'+m; }
 
 function verRanking(id) {
-  const c = state.campanhas.find(x => x.id === id);
-  if (!c) return;
+  const c = state.campanhas.find(x=>x.id===id); if(!c)return;
   document.getElementById('modal-title').textContent = c.titulo.toUpperCase();
-  if (!state.conectado || !state.rankingData.length) {
-    document.getElementById('modal-body').innerHTML = `<div style="text-align:center;padding:2rem;color:var(--cinza)"><div style="font-size:40px;margin-bottom:1rem">📡</div><strong style="color:var(--verde)">Conecte o RD Station</strong><p style="font-size:13px;margin-top:8px">Cole as API keys no topo para ver o ranking em tempo real</p></div>`;
+  if (!state.conectado||!state.rankingData.length) {
+    document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:2rem;color:var(--cinza)"><div style="font-size:40px;margin-bottom:1rem">📡</div><strong style="color:var(--verde)">Atualize os dados do RD</strong><p style="font-size:13px;margin-top:8px">Clique em "Atualizar dados" no topo</p></div>`;
   } else {
-    const medals = ['🥇','🥈','🥉'];
-    document.getElementById('modal-body').innerHTML =
-      state.rankingData.slice(0,5).map((v,i) => `
-        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--cinza-light)">
-          <span style="font-size:22px;width:32px">${medals[i]||(i+1)+'.'}</span>
-          <div style="flex:1"><div style="font-weight:600;font-size:14px">${v.nome}</div><div style="font-size:11px;color:var(--cinza)">${v.equipe}</div></div>
-          <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-weight:600;color:var(--verde)">${v.pedidos} pedidos</div><div style="font-size:11px;color:var(--cinza)">R$ ${Math.round(v.valor).toLocaleString('pt-BR')}</div></div>
-        </div>`).join('');
+    const medals=['🥇','🥈','🥉'];
+    document.getElementById('modal-body').innerHTML = state.rankingData.slice(0,5).map((v,i)=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--cinza-light)">
+        <span style="font-size:22px;width:32px">${medals[i]||(i+1)+'.'}</span>
+        <div style="flex:1"><div style="font-weight:600;font-size:14px">${v.nome}</div><div style="font-size:11px;color:var(--cinza)">${v.equipe}</div></div>
+        <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-weight:600;color:var(--verde)">${v.pedidos} pedidos</div><div style="font-size:11px;color:var(--cinza)">R$ ${Math.round(v.valor).toLocaleString('pt-BR')}</div></div>
+      </div>`).join('');
   }
   document.getElementById('modal-overlay').classList.add('open');
 }
 
 function fecharModal(e) {
-  if (!e || e.target === document.getElementById('modal-overlay'))
-    document.getElementById('modal-overlay').classList.remove('open');
+  if(!e||e.target===document.getElementById('modal-overlay')) document.getElementById('modal-overlay').classList.remove('open');
 }
 
-load();
+// INIT — verifica sessão salva
+(async()=>{
+  const savedPin = sessionStorage.getItem('hk_pin');
+  if (savedPin) {
+    const r = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin:savedPin}) });
+    if (r.ok) {
+      PIN_SESSION = savedPin;
+      document.getElementById('pin-screen').classList.add('hidden');
+      await load();
+      await conectarRD();
+    }
+  }
+})();
 </script>
 </body>
 </html>
