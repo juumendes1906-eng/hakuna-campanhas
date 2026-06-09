@@ -151,7 +151,17 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/ping', (_, res) => res.json({ ok: true }));
+app.get('/api/debug/deal', async (req, res) => {
+  try {
+    const r = await fetch('https://crm.rdstation.com/api/v1/deals?page=1&limit=1', {
+      headers: { 'token': RD_CRM_KEY }
+    });
+    const data = await r.json();
+    res.json(data.deals?.[0] || { msg: 'nenhum deal encontrado' });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/ping', ...app.get('/api/ping', (_, res) => res.json({ ok: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
