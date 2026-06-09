@@ -156,8 +156,8 @@ app.get('/api/debug/deal', async (req, res) => {
     const r = await fetch('https://crm.rdstation.com/api/v1/deals?page=1&limit=1', {
       headers: { 'token': RD_CRM_KEY }
     });
-    const data = await r.json();
-    res.json(data.deals?.[0] || { msg: 'nenhum deal encontrado' });
+    const text = await r.text();
+    res.json({ status: r.status, key_present: !!RD_CRM_KEY, key_length: RD_CRM_KEY.length, body: text.substring(0, 500) });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
