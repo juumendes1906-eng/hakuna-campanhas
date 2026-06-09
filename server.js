@@ -2,23 +2,32 @@ const express = require('express');
 const fetch = require('node-fetch');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
+const { Pool } = require('pg');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const DB_FILE = path.join(__dirname, 'campanhas.json');
 const PIN = process.env.ACCESS_PIN || '1234';
 const RD_MKT_KEY = process.env.RD_MKT_KEY || '';
 const RD_CRM_KEY = process.env.RD_CRM_KEY || '';
 
-function lerCampanhas() {
-  try { if (fs.existsSync(DB_FILE)) return JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); } catch(e) {}
-  return [];
-}
-function salvarCampanhas(c) {
-  try { fs.writeFileSync(DB_FILE, JSON.stringify(c, null, 2)); } catch(e) {}
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// Cria tabela se não existir
+async function initDB() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS campanhas (
+      id BIGINT PRIMARY KEY,
+      titulo TEXT, setor TEXT, inicio TEXT, fim TEXT,
+      premio TEXT, criterio TEXT, desempate TEXT,
+      regras TEXT, abrangencia TEXT, criada TEXT
+    )
+  `);
+  console.log('Banco de dados pronto!');
 }
 
 // Verifica PIN
@@ -36,22 +45,37 @@ app.post('/api/auth', (req, res) => {
 });
 
 // Campanhas
-app.get('/api/campanhas', checkPin, (req, res) => res.json(lerCampanhas()));
-app.post('/api/campanhas', checkPin, (req, res) => {
-  const campanhas = lerCampanhas();
-  const nova = { ...req.body, id: Date.now(), criada: new Date().toISOString() };
-  campanhas.push(nova);
-  salvarCampanhas(campanhas);
-  res.json(nova);
+app.get('/api/campanhas', checkPin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM campanhas ORDER BY id ASC');
+    res.json(result.rows);
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
-app.delete('/api/campanhas/:id', checkPin, (req, res) => {
-  salvarCampanhas(lerCampanhas().filter(c => c.id !== parseInt(req.params.id)));
-  res.json({ ok: true });
+
+app.post('/api/campanhas', checkPin, async (req, res) => {
+  try {
+    const { titulo, setor, inicio, fim, premio, criterio, desempate, regras, abrangencia } = req.body;
+    const id = Date.now();
+    const criada = new Date().toISOString();
+    await pool.query(
+      `INSERT INTO campanhas (id,titulo,setor,inicio,fim,premio,criterio,desempate,regras,abrangencia,criada)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+      [id, titulo, setor, inicio, fim, premio, criterio, desempate, regras||'', abrangencia, criada]
+    );
+    res.json({ id, titulo, setor, inicio, fim, premio, criterio, desempate, regras, abrangencia, criada });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/campanhas/:id', checkPin, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM campanhas WHERE id=$1', [parseInt(req.params.id)]);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 // RD Marketing
 app.get('/api/rd/leads', checkPin, async (req, res) => {
-  if (!RD_MKT_KEY) return res.status(400).json({ error: 'RD_MKT_KEY não configurada no servidor' });
+  if (!RD_MKT_KEY) return res.status(400).json({ error: 'RD_MKT_KEY não configurada' });
   try {
     const r = await fetch('https://api.rd.services/platform/contacts?page_size=200&order=created_at&sort=desc', {
       headers: { 'Authorization': 'Bearer ' + RD_MKT_KEY }
@@ -66,7 +90,7 @@ app.get('/api/rd/leads', checkPin, async (req, res) => {
 
 // RD CRM Oportunidades
 app.get('/api/rd/oportunidades', checkPin, async (req, res) => {
-  if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada no servidor' });
+  if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   try {
     const r = await fetch('https://crm.rdstation.com/api/v1/deals?page=1&limit=200', {
       headers: { 'token': RD_CRM_KEY }
@@ -80,7 +104,7 @@ app.get('/api/rd/oportunidades', checkPin, async (req, res) => {
 
 // RD CRM Fechados + Ranking
 app.get('/api/rd/fechados', checkPin, async (req, res) => {
-  if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada no servidor' });
+  if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   const period = req.query.period || 'semana';
   try {
     const hoje = new Date(); hoje.setHours(23,59,59,999);
@@ -128,9 +152,12 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
 });
 
 app.get('/api/ping', (_, res) => res.json({ ok: true }));
-
-// Serve frontend
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Hakuna Campanhas rodando na porta ${PORT}`));
+initDB().then(() => {
+  app.listen(PORT, () => console.log(`Hakuna Campanhas rodando na porta ${PORT}`));
+}).catch(e => {
+  console.error('Erro ao conectar banco:', e.message);
+  process.exit(1);
+});
