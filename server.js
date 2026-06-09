@@ -161,7 +161,7 @@ app.get('/api/debug/deal', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/ping', ...app.get('/api/ping', (_, res) => res.json({ ok: true }));
+app.get('/api/ping', (_, res) => res.json({ ok: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
