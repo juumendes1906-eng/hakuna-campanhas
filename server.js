@@ -206,7 +206,15 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
     });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
-
+app.get('/api/debug/mkt', async (req, res) => {
+  try {
+    const r = await fetch('https://api.rd.services/platform/contacts?page_size=1', {
+      headers: { 'Authorization': 'Bearer ' + RD_MKT_KEY }
+    });
+    const text = await r.text();
+    res.json({ status: r.status, key_length: RD_MKT_KEY.length, body: text.substring(0, 300) });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
 app.get('/api/ping', (_, res) => res.json({ ok: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
