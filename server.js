@@ -103,7 +103,10 @@ app.delete('/api/criterios/:nome', checkPin, async (req, res) => {
 app.get('/api/rd/leads', checkPin, async (req, res) => {
   if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   try {
-    const inicioMes = new Date(); inicioMes.setDate(1); inicioMes.setHours(0,0,0,0);
+    const agora = new Date();
+const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1, 0, 0, 0, 0);
+// Ajusta para fuso de Brasília (UTC-3)
+inicioMes.setTime(inicioMes.getTime() - (3 * 60 * 60 * 1000));
 
     // Busca paginada ordenada por data desc, para quando chegar antes do mês
     let page = 1, total_mes = 0, hasMore = true;
