@@ -103,10 +103,9 @@ app.delete('/api/criterios/:nome', checkPin, async (req, res) => {
 app.get('/api/rd/leads', checkPin, async (req, res) => {
   if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   try {
+    // Início do mês em string para comparação direta (evita problema de fuso)
     const agora = new Date();
-const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1, 0, 0, 0, 0);
-// Ajusta para fuso de Brasília (UTC-3)
-inicioMes.setTime(inicioMes.getTime() - (3 * 60 * 60 * 1000));
+    const anoMes = agora.getFullYear() + '-' + String(agora.getMonth() + 1).padStart(2, '0');
 
     // Busca paginada ordenada por data desc, para quando chegar antes do mês
     let page = 1, total_mes = 0, hasMore = true;
@@ -117,12 +116,13 @@ inicioMes.setTime(inicioMes.getTime() - (3 * 60 * 60 * 1000));
       const contacts = data.contacts || [];
       if (!contacts.length) break;
 
-      const doMes = contacts.filter(c => new Date(c.created_at) >= inicioMes);
+      // Compara strings de data diretamente (ex: "2026-06" >= "2026-06")
+      const doMes = contacts.filter(c => c.created_at && c.created_at.substring(0, 7) === anoMes);
       total_mes += doMes.length;
 
-      // Se o último contato já é antes do início do mês, pode parar
+      // Se o último contato já é de mês anterior, pode parar
       const ultimo = contacts[contacts.length - 1];
-      if (!ultimo || new Date(ultimo.created_at) < inicioMes) {
+      if (!ultimo || !ultimo.created_at || ultimo.created_at.substring(0, 7) < anoMes) {
         hasMore = false;
       } else {
         page++;
