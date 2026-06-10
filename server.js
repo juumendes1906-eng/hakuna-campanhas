@@ -11,6 +11,7 @@ app.use(express.json());
 const PIN = process.env.ACCESS_PIN || '1234';
 const RD_MKT_KEY = process.env.RD_MKT_KEY || '';
 const RD_CRM_KEY = process.env.RD_CRM_KEY || '';
+const META_LEADS = parseInt(process.env.META_LEADS || '2000');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -24,6 +25,12 @@ async function initDB() {
       titulo TEXT, setor TEXT, inicio TEXT, fim TEXT,
       premio TEXT, criterio TEXT, desempate TEXT,
       regras TEXT, abrangencia TEXT, criada TEXT
+    )
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS criterios_custom (
+      id SERIAL PRIMARY KEY,
+      nome TEXT UNIQUE NOT NULL
     )
   `);
   console.log('Banco de dados pronto!');
@@ -41,6 +48,7 @@ app.post('/api/auth', (req, res) => {
   else res.status(401).json({ error: 'PIN incorreto' });
 });
 
+// Campanhas
 app.get('/api/campanhas', checkPin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM campanhas ORDER BY id ASC');
@@ -68,48 +76,99 @@ app.delete('/api/campanhas/:id', checkPin, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// RD Marketing — usa Bearer token no header
-app.get('/api/rd/leads', checkPin, async (req, res) => {
-  if (!RD_MKT_KEY) return res.status(400).json({ error: 'RD_MKT_KEY não configurada' });
+// Critérios customizados
+app.get('/api/criterios', checkPin, async (req, res) => {
   try {
-    const r = await fetch('https://api.rd.services/platform/contacts?page_size=200&order=created_at&sort=desc', {
-      headers: { 'Authorization': 'Bearer ' + RD_MKT_KEY }
-    });
-    if (!r.ok) {
-      const err = await r.text();
-      return res.status(r.status).json({ error: 'Erro RD Marketing', detail: err });
-    }
-    const data = await r.json();
-    const contacts = data.contacts || [];
-    const inicioMes = new Date(); inicioMes.setDate(1); inicioMes.setHours(0,0,0,0);
-    res.json({ total_mes: contacts.filter(c => new Date(c.created_at) >= inicioMes).length, total_geral: data.total || contacts.length });
+    const result = await pool.query('SELECT nome FROM criterios_custom ORDER BY id ASC');
+    res.json(result.rows.map(r => r.nome));
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// RD CRM — usa token na URL (formato correto)
+app.post('/api/criterios', checkPin, async (req, res) => {
+  try {
+    const { nome } = req.body;
+    if (!nome) return res.status(400).json({ error: 'Nome obrigatório' });
+    await pool.query('INSERT INTO criterios_custom (nome) VALUES ($1) ON CONFLICT DO NOTHING', [nome]);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/criterios/:nome', checkPin, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM criterios_custom WHERE nome=$1', [decodeURIComponent(req.params.nome)]);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// RD Marketing — leads do mês com paginação completa
+app.get('/api/rd/leads', checkPin, async (req, res) => {
+  if (!RD_MKT_KEY) return res.status(400).json({ error: 'RD_MKT_KEY não configurada' });
+  try {
+    const inicioMes = new Date(); inicioMes.setDate(1); inicioMes.setHours(0,0,0,0);
+    const inicioMesStr = inicioMes.toISOString();
+
+    // Busca com paginação
+    let page = 1, total_mes = 0, total_geral = 0, hasMore = true;
+    while (hasMore) {
+      const r = await fetch(`https://api.rd.services/platform/contacts?page_size=200&page=${page}&order=created_at&sort=desc`, {
+        headers: { 'Authorization': 'Bearer ' + RD_MKT_KEY }
+      });
+      if (!r.ok) {
+        const err = await r.text();
+        return res.status(r.status).json({ error: 'Erro RD Marketing', detail: err });
+      }
+      const data = await r.json();
+      const contacts = data.contacts || [];
+      if (page === 1) total_geral = data.total || 0;
+
+      const doMes = contacts.filter(c => new Date(c.created_at) >= inicioMes);
+      total_mes += doMes.length;
+
+      // Se o último contato da página já é antes do mês, para
+      if (!contacts.length || new Date(contacts[contacts.length-1].created_at) < inicioMes) {
+        hasMore = false;
+      } else {
+        page++;
+        if (page > 10) hasMore = false;
+      }
+    }
+
+    res.json({ total_mes, total_geral, meta: META_LEADS, percentual: Math.round((total_mes / META_LEADS) * 100) });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// RD CRM Oportunidades
 app.get('/api/rd/oportunidades', checkPin, async (req, res) => {
   if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   try {
     const r = await fetch(`https://crm.rdstation.com/api/v1/deals?token=${RD_CRM_KEY}&page=1&limit=200`);
-    if (!r.ok) {
-      const err = await r.text();
-      return res.status(r.status).json({ error: 'Erro RD CRM', detail: err });
-    }
+    if (!r.ok) return res.status(r.status).json({ error: 'Erro RD CRM' });
     const data = await r.json();
     const deals = data.deals || [];
     res.json({ abertas: deals.filter(d => !d.win && !d.lost).length, ganhas: deals.filter(d => d.win).length, total: deals.length });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// RD CRM Fechados + Ranking
+// RD CRM Fechados + Ranking por campanha
 app.get('/api/rd/fechados', checkPin, async (req, res) => {
   if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   const period = req.query.period || 'semana';
+  const campanhaInicio = req.query.inicio || null;
+  const campanhaFim = req.query.fim || null;
+
   try {
-    const hoje = new Date(); hoje.setHours(23,59,59,999);
-    const inicio = new Date();
-    if (period === 'semana') { inicio.setDate(hoje.getDate() - 6); } else { inicio.setDate(1); }
-    inicio.setHours(0,0,0,0);
+    let inicio, hoje;
+
+    if (campanhaInicio && campanhaFim) {
+      // Usa o período exato da campanha
+      inicio = new Date(campanhaInicio); inicio.setHours(0,0,0,0);
+      hoje = new Date(campanhaFim); hoje.setHours(23,59,59,999);
+    } else {
+      hoje = new Date(); hoje.setHours(23,59,59,999);
+      inicio = new Date();
+      if (period === 'semana') { inicio.setDate(hoje.getDate() - 6); } else { inicio.setDate(1); }
+      inicio.setHours(0,0,0,0);
+    }
 
     let page = 1, allDeals = [];
     while (true) {
@@ -123,10 +182,7 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
       page++; if (page > 20) break;
     }
 
-    // Filtra vendidos — win=true OU etapa com "vend"
     const vendidos = allDeals.filter(d => d.win === true || (d.deal_stage?.name || '').toLowerCase().includes('vend'));
-
-    // Filtra pelo período
     const filtrados = vendidos.filter(d => {
       const dt = d.closed_at ? new Date(d.closed_at) : new Date(d.updated_at);
       return dt >= inicio && dt <= hoje;
@@ -144,19 +200,10 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
     const ranking = Object.values(porVendedor).sort((a,b) => b.pedidos - a.pedidos || b.valor - a.valor);
     res.json({
       total_pedidos: filtrados.length,
-      valor_total: filtrados.reduce((acc,d) => acc + parseFloat(d.amount_montly || d.amount || 0), 0),
+      valor_total: filtrados.reduce((acc,d) => acc + parseFloat(d.amount_total || d.amount_montly || d.amount || 0), 0),
       periodo: period,
       ranking
     });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
-// Debug — remover depois
-app.get('/api/debug/deal', async (req, res) => {
-  try {
-    const r = await fetch(`https://crm.rdstation.com/api/v1/deals?token=${RD_CRM_KEY}&page=1&limit=1`);
-    const text = await r.text();
-    res.json({ status: r.status, key_present: !!RD_CRM_KEY, key_length: RD_CRM_KEY.length, body: text.substring(0, 500) });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
