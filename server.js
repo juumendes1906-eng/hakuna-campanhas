@@ -9,7 +9,6 @@ app.use(cors());
 app.use(express.json());
 
 const PIN = process.env.ACCESS_PIN || '1234';
-const RD_MKT_KEY = process.env.RD_MKT_KEY || '';
 const RD_CRM_KEY = process.env.RD_CRM_KEY || '';
 const META_LEADS = parseInt(process.env.META_LEADS || '2000');
 
@@ -100,36 +99,49 @@ app.delete('/api/criterios/:nome', checkPin, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// RD Marketing — leads do mês com paginação completa
+// RD CRM — Leads do mês (contatos criados este mês)
 app.get('/api/rd/leads', checkPin, async (req, res) => {
   if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   try {
     const inicioMes = new Date(); inicioMes.setDate(1); inicioMes.setHours(0,0,0,0);
-    const inicioStr = inicioMes.toISOString().split('T')[0];
 
-    // Busca contatos criados este mês via RD CRM
+    // Busca paginada ordenada por data desc, para quando chegar antes do mês
     let page = 1, total_mes = 0, hasMore = true;
     while (hasMore) {
-      const r = await fetch(`https://crm.rdstation.com/api/v1/contacts?token=${RD_CRM_KEY}&page=${page}&limit=200&created_at_from=${inicioStr}`);
+      const r = await fetch(`https://crm.rdstation.com/api/v1/contacts?token=${RD_CRM_KEY}&page=${page}&limit=200&order=created_at&sort=desc`);
       if (!r.ok) break;
       const data = await r.json();
       const contacts = data.contacts || [];
-      total_mes += contacts.length;
-      if (!data.has_more || contacts.length < 200) hasMore = false;
-      else page++;
-      if (page > 20) hasMore = false;
+      if (!contacts.length) break;
+
+      const doMes = contacts.filter(c => new Date(c.created_at) >= inicioMes);
+      total_mes += doMes.length;
+
+      // Se o último contato já é antes do início do mês, pode parar
+      const ultimo = contacts[contacts.length - 1];
+      if (!ultimo || new Date(ultimo.created_at) < inicioMes) {
+        hasMore = false;
+      } else {
+        page++;
+        if (page > 30) hasMore = false;
+      }
     }
 
-    // Total geral
+    // Total geral rápido
     const rTotal = await fetch(`https://crm.rdstation.com/api/v1/contacts?token=${RD_CRM_KEY}&page=1&limit=1`);
-    const dTotal = await rTotal.json();
+    const dTotal = rTotal.ok ? await rTotal.json() : {};
     const total_geral = dTotal.total || 0;
 
-    res.json({ total_mes, total_geral, meta: META_LEADS, percentual: Math.round((total_mes / META_LEADS) * 100) });
+    res.json({
+      total_mes,
+      total_geral,
+      meta: META_LEADS,
+      percentual: Math.round((total_mes / META_LEADS) * 100)
+    });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// RD CRM Oportunidades
+// RD CRM — Oportunidades abertas
 app.get('/api/rd/oportunidades', checkPin, async (req, res) => {
   if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   try {
@@ -137,11 +149,15 @@ app.get('/api/rd/oportunidades', checkPin, async (req, res) => {
     if (!r.ok) return res.status(r.status).json({ error: 'Erro RD CRM' });
     const data = await r.json();
     const deals = data.deals || [];
-    res.json({ abertas: deals.filter(d => !d.win && !d.lost).length, ganhas: deals.filter(d => d.win).length, total: deals.length });
+    res.json({
+      abertas: deals.filter(d => !d.win && !d.lost).length,
+      ganhas: deals.filter(d => d.win).length,
+      total: deals.length
+    });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// RD CRM Fechados + Ranking por campanha
+// RD CRM — Pedidos fechados + Ranking
 app.get('/api/rd/fechados', checkPin, async (req, res) => {
   if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   const period = req.query.period || 'semana';
@@ -150,9 +166,7 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
 
   try {
     let inicio, hoje;
-
     if (campanhaInicio && campanhaFim) {
-      // Usa o período exato da campanha
       inicio = new Date(campanhaInicio); inicio.setHours(0,0,0,0);
       hoje = new Date(campanhaFim); hoje.setHours(23,59,59,999);
     } else {
