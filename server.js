@@ -102,36 +102,28 @@ app.delete('/api/criterios/:nome', checkPin, async (req, res) => {
 
 // RD Marketing — leads do mês com paginação completa
 app.get('/api/rd/leads', checkPin, async (req, res) => {
-  if (!RD_MKT_KEY) return res.status(400).json({ error: 'RD_MKT_KEY não configurada' });
+  if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   try {
     const inicioMes = new Date(); inicioMes.setDate(1); inicioMes.setHours(0,0,0,0);
-    const inicioMesStr = inicioMes.toISOString();
+    const inicioStr = inicioMes.toISOString().split('T')[0];
 
-    // Busca com paginação
-    let page = 1, total_mes = 0, total_geral = 0, hasMore = true;
+    // Busca contatos criados este mês via RD CRM
+    let page = 1, total_mes = 0, hasMore = true;
     while (hasMore) {
-      const r = await fetch(`https://api.rd.services/platform/contacts?page_size=200&page=${page}&order=created_at&sort=desc`, {
-        headers: { 'Authorization': 'Bearer ' + RD_MKT_KEY }
-      });
-      if (!r.ok) {
-        const err = await r.text();
-        return res.status(r.status).json({ error: 'Erro RD Marketing', detail: err });
-      }
+      const r = await fetch(`https://crm.rdstation.com/api/v1/contacts?token=${RD_CRM_KEY}&page=${page}&limit=200&created_at_from=${inicioStr}`);
+      if (!r.ok) break;
       const data = await r.json();
       const contacts = data.contacts || [];
-      if (page === 1) total_geral = data.total || 0;
-
-      const doMes = contacts.filter(c => new Date(c.created_at) >= inicioMes);
-      total_mes += doMes.length;
-
-      // Se o último contato da página já é antes do mês, para
-      if (!contacts.length || new Date(contacts[contacts.length-1].created_at) < inicioMes) {
-        hasMore = false;
-      } else {
-        page++;
-        if (page > 10) hasMore = false;
-      }
+      total_mes += contacts.length;
+      if (!data.has_more || contacts.length < 200) hasMore = false;
+      else page++;
+      if (page > 20) hasMore = false;
     }
+
+    // Total geral
+    const rTotal = await fetch(`https://crm.rdstation.com/api/v1/contacts?token=${RD_CRM_KEY}&page=1&limit=1`);
+    const dTotal = await rTotal.json();
+    const total_geral = dTotal.total || 0;
 
     res.json({ total_mes, total_geral, meta: META_LEADS, percentual: Math.round((total_mes / META_LEADS) * 100) });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -206,15 +198,7 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
     });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
-app.get('/api/debug/mkt', async (req, res) => {
-  try {
-    const r = await fetch('https://api.rd.services/platform/contacts?page_size=1', {
-      headers: { 'Authorization': 'Bearer ' + RD_MKT_KEY }
-    });
-    const text = await r.text();
-    res.json({ status: r.status, key_length: RD_MKT_KEY.length, body: text.substring(0, 300) });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
+
 app.get('/api/ping', (_, res) => res.json({ ok: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
