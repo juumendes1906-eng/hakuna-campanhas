@@ -138,7 +138,7 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
       const equipe = deal.campaign?.name || deal.deal_source?.name || '—';
       if (!porVendedor[nome]) porVendedor[nome] = { nome, equipe, pedidos: 0, valor: 0 };
       porVendedor[nome].pedidos++;
-      porVendedor[nome].valor += parseFloat(deal.amount_montly || deal.amount || 0);
+      porVendedor[nome].valor += parseFloat(deal.amount_total || deal.amount_montly || deal.amount || 0);
     });
 
     const ranking = Object.values(porVendedor).sort((a,b) => b.pedidos - a.pedidos || b.valor - a.valor);
