@@ -17,7 +17,6 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Cria tabela se não existir
 async function initDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS campanhas (
@@ -30,21 +29,18 @@ async function initDB() {
   console.log('Banco de dados pronto!');
 }
 
-// Verifica PIN
 function checkPin(req, res, next) {
   const pin = req.headers['x-access-pin'];
   if (pin !== PIN) return res.status(401).json({ error: 'PIN inválido' });
   next();
 }
 
-// Auth
 app.post('/api/auth', (req, res) => {
   const { pin } = req.body;
   if (pin === PIN) res.json({ ok: true });
   else res.status(401).json({ error: 'PIN incorreto' });
 });
 
-// Campanhas
 app.get('/api/campanhas', checkPin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM campanhas ORDER BY id ASC');
@@ -58,8 +54,7 @@ app.post('/api/campanhas', checkPin, async (req, res) => {
     const id = Date.now();
     const criada = new Date().toISOString();
     await pool.query(
-      `INSERT INTO campanhas (id,titulo,setor,inicio,fim,premio,criterio,desempate,regras,abrangencia,criada)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+      `INSERT INTO campanhas (id,titulo,setor,inicio,fim,premio,criterio,desempate,regras,abrangencia,criada) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
       [id, titulo, setor, inicio, fim, premio, criterio, desempate, regras||'', abrangencia, criada]
     );
     res.json({ id, titulo, setor, inicio, fim, premio, criterio, desempate, regras, abrangencia, criada });
@@ -73,14 +68,17 @@ app.delete('/api/campanhas/:id', checkPin, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// RD Marketing
+// RD Marketing — usa Bearer token no header
 app.get('/api/rd/leads', checkPin, async (req, res) => {
   if (!RD_MKT_KEY) return res.status(400).json({ error: 'RD_MKT_KEY não configurada' });
   try {
     const r = await fetch('https://api.rd.services/platform/contacts?page_size=200&order=created_at&sort=desc', {
       headers: { 'Authorization': 'Bearer ' + RD_MKT_KEY }
     });
-    if (!r.ok) return res.status(r.status).json({ error: 'Erro RD Marketing' });
+    if (!r.ok) {
+      const err = await r.text();
+      return res.status(r.status).json({ error: 'Erro RD Marketing', detail: err });
+    }
     const data = await r.json();
     const contacts = data.contacts || [];
     const inicioMes = new Date(); inicioMes.setDate(1); inicioMes.setHours(0,0,0,0);
@@ -88,14 +86,15 @@ app.get('/api/rd/leads', checkPin, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// RD CRM Oportunidades
+// RD CRM — usa token na URL (formato correto)
 app.get('/api/rd/oportunidades', checkPin, async (req, res) => {
   if (!RD_CRM_KEY) return res.status(400).json({ error: 'RD_CRM_KEY não configurada' });
   try {
-    const r = await fetch('https://crm.rdstation.com/api/v1/deals?page=1&limit=200', {
-      headers: { 'token': RD_CRM_KEY }
-    });
-    if (!r.ok) return res.status(r.status).json({ error: 'Erro RD CRM' });
+    const r = await fetch(`https://crm.rdstation.com/api/v1/deals?token=${RD_CRM_KEY}&page=1&limit=200`);
+    if (!r.ok) {
+      const err = await r.text();
+      return res.status(r.status).json({ error: 'Erro RD CRM', detail: err });
+    }
     const data = await r.json();
     const deals = data.deals || [];
     res.json({ abertas: deals.filter(d => !d.win && !d.lost).length, ganhas: deals.filter(d => d.win).length, total: deals.length });
@@ -114,9 +113,7 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
 
     let page = 1, allDeals = [];
     while (true) {
-      const r = await fetch(`https://crm.rdstation.com/api/v1/deals?page=${page}&limit=200`, {
-        headers: { 'token': RD_CRM_KEY }
-      });
+      const r = await fetch(`https://crm.rdstation.com/api/v1/deals?token=${RD_CRM_KEY}&page=${page}&limit=200`);
       if (!r.ok) break;
       const data = await r.json();
       const deals = data.deals || [];
@@ -126,7 +123,10 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
       page++; if (page > 20) break;
     }
 
+    // Filtra vendidos — win=true OU etapa com "vend"
     const vendidos = allDeals.filter(d => d.win === true || (d.deal_stage?.name || '').toLowerCase().includes('vend'));
+
+    // Filtra pelo período
     const filtrados = vendidos.filter(d => {
       const dt = d.closed_at ? new Date(d.closed_at) : new Date(d.updated_at);
       return dt >= inicio && dt <= hoje;
@@ -151,24 +151,15 @@ app.get('/api/rd/fechados', checkPin, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// Debug — remover depois
 app.get('/api/debug/deal', async (req, res) => {
   try {
-    const r = await fetch('https://crm.rdstation.com/api/v1/deals?page=1&limit=1', {
-      headers: { 'token': RD_CRM_KEY }
-    });
+    const r = await fetch(`https://crm.rdstation.com/api/v1/deals?token=${RD_CRM_KEY}&page=1&limit=1`);
     const text = await r.text();
     res.json({ status: r.status, key_present: !!RD_CRM_KEY, key_length: RD_CRM_KEY.length, body: text.substring(0, 500) });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
-app.get('/api/debug/mkt', async (req, res) => {
-  try {
-    const r = await fetch('https://api.rd.services/platform/contacts?page_size=1', {
-      headers: { 'Authorization': 'Bearer ' + RD_MKT_KEY }
-    });
-    const text = await r.text();
-    res.json({ status: r.status, key_present: !!RD_MKT_KEY, key_length: RD_MKT_KEY.length, body: text.substring(0, 500) });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
+
 app.get('/api/ping', (_, res) => res.json({ ok: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
